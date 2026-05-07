@@ -1,0 +1,23 @@
+cat > .gitignore << 'EOF'
+# Model checkpoints (regenerate from notebooks)
+*.pt
+*.pth
+checkpoints/
+
+# Dataset (download from Kaggle separately)
+data/
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+EOF

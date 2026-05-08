@@ -1,4 +1,3 @@
-
 # NepalCropNet
 
 **Maize disease classification with Vision Transformers and few-shot learning, evaluated under real-world domain shift.**
@@ -197,29 +196,30 @@ Embedding clustering (Swin-T features on PlantDoc): inter/intra L2 ratio = **1.0
 ---
 
 ## Repository Structure
+
 nepalcropnet/
-├── README.md                           # this file
-├── .gitignore                          # excludes .pt checkpoints, dataset/, OS files
+├── README.md # this file
+├── .gitignore # excludes .pt checkpoints, dataset/, OS files
 ├── notebooks/
-│   ├── nb1-resnet50-baseline.ipynb     # ResNet50 fine-tuning
-│   ├── nb2-swin-t-baseline.ipynb       # Swin-T two-stage fine-tuning
-│   ├── nb3-prototypical-networks.ipynb # Few-shot in-domain
-│   └── nb4-plantdoc-domain-gap.ipynb   # Cross-dataset evaluation
+│ ├── nb1-resnet50-baseline.ipynb # ResNet50 fine-tuning
+│ ├── nb2-swin-t-baseline.ipynb # Swin-T two-stage fine-tuning
+│ ├── nb3-prototypical-networks.ipynb # Few-shot in-domain
+│ └── nb4-plantdoc-domain-gap.ipynb # Cross-dataset evaluation
 ├── results/
-│   ├── nb1_resnet50_results.json
-│   ├── resnet50_confusion_matrix.png
-│   ├── resnet50_gradcam.png
-│   ├── nb2_swin_t_results.json
-│   ├── swin_t_confusion_matrix.png
-│   ├── swin_t_training_curves.png
-│   ├── nb3_protonet_results.json
-│   ├── nb3_episode_distributions.png
-│   ├── nb3_supervised_vs_fewshot.png
-│   ├── nb4_domain_gap_results.json
-│   ├── nb4_domain_gap.png
-│   ├── nb4_per_class_recall.png
-│   └── nb4_fewshot_recovery.png
-└── paper/                              # project writeup (work in progress)
+│ ├── nb1_resnet50_results.json
+│ ├── resnet50_confusion_matrix.png
+│ ├── resnet50_gradcam.png
+│ ├── nb2_swin_t_results.json
+│ ├── swin_t_confusion_matrix.png
+│ ├── swin_t_training_curves.png
+│ ├── nb3_protonet_results.json
+│ ├── nb3_episode_distributions.png
+│ ├── nb3_supervised_vs_fewshot.png
+│ ├── nb4_domain_gap_results.json
+│ ├── nb4_domain_gap.png
+│ ├── nb4_per_class_recall.png
+│ └── nb4_fewshot_recovery.png
+└── paper/ # project writeup (work in progress)
 
 ---
 
@@ -240,12 +240,12 @@ nepalcropnet/
 3. Upload the `.ipynb` from the `notebooks/` folder of this repo
 4. Run all cells in order
 
-| Notebook | Required inputs | Approx. runtime on T4 |
-|---|---|---|
-| NB1 | PlantVillage dataset | ~12 min |
-| NB2 | PlantVillage dataset | ~7 min |
-| NB3 | PlantVillage dataset + NB2 checkpoint (`swin_t_best.pt`) | ~2 min |
-| NB4 | PlantDoc dataset + NB1 + NB2 checkpoints | ~3 min |
+| Notebook | Required inputs                                          | Approx. runtime on T4 |
+| -------- | -------------------------------------------------------- | --------------------- |
+| NB1      | PlantVillage dataset                                     | ~12 min               |
+| NB2      | PlantVillage dataset                                     | ~7 min                |
+| NB3      | PlantVillage dataset + NB2 checkpoint (`swin_t_best.pt`) | ~2 min                |
+| NB4      | PlantDoc dataset + NB1 + NB2 checkpoints                 | ~3 min                |
 
 ### Saving outputs
 
@@ -256,6 +256,18 @@ After each notebook completes successfully:
 3. Either upload the `.pt` checkpoint as a new private Kaggle dataset (for use in subsequent notebooks) or store it locally
 
 ---
+
+## Reproducibility Notes
+
+Results in this repository are reproducible to within approximately ±1% using the same code, the same random seed (`SEED=42`), and the Kaggle T4 GPU environment. Bit-exact reproduction is not guaranteed for several reasons:
+
+- **CUDA non-determinism.** Setting `torch.backends.cudnn.deterministic = True` covers most but not all GPU operations. Some reductions and convolution backward passes vary slightly between runs even with seeds set. Across two runs of NB1 with identical code and seed, validation macro-F1 varied from 0.9809 to 0.9861.
+- **DataLoader configuration.** Number of workers (`num_workers`) affects batch prefetch order and consequently the exact batch composition during training. The notebooks use `num_workers=0` to avoid Kaggle multiprocessing artifacts.
+- **PyTorch and torchvision version drift.** Kaggle updates installed packages periodically. The exact versions used at the time of running are listed in `requirements.txt`.
+- **Dataset version drift.** Public Kaggle datasets can be updated by their authors. The slugs `abdallahalidev/plantvillage-dataset` and `nirmalsankalana/plantdoc-dataset` were used as accessed in May 2026.
+- **Single-seed evaluation.** All reported numbers come from a single training run with `seed=42`. Standard practice for ML papers is reporting mean ± standard deviation over 3–5 seeds; this was not done due to compute budget constraints. Qualitative findings (architecture comparison direction, magnitude of cross-domain drop, few-shot scaling) are robust to seed choice; exact decimals are not.
+
+For exact reproduction, install the packages listed in `requirements.txt`, attach the same Kaggle dataset slugs, run the notebooks in order on a Kaggle T4 GPU instance, and use `seed=42` throughout.
 
 ## Tech Stack
 
@@ -271,13 +283,13 @@ After each notebook completes successfully:
 
 ## References
 
-- **PlantVillage:** Hughes, D. P., & Salathé, M. (2015). *An open access repository of images on plant health to enable the development of mobile disease diagnostics.* arXiv:1511.08060.
-- **PlantDoc:** Singh, D., Jain, N., Jain, P., Kayal, P., Kumawat, S., & Batra, N. (2020). *PlantDoc: A Dataset for Visual Plant Disease Detection.* CoDS-COMAD.
-- **ResNet:** He, K., Zhang, X., Ren, S., & Sun, J. (2016). *Deep Residual Learning for Image Recognition.* CVPR.
-- **Swin Transformer:** Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S., & Guo, B. (2021). *Swin Transformer: Hierarchical Vision Transformer using Shifted Windows.* ICCV.
-- **Prototypical Networks:** Snell, J., Swersky, K., & Zemel, R. (2017). *Prototypical Networks for Few-shot Learning.* NeurIPS.
-- **SimpleShot:** Wang, Y., Chao, W. L., Weinberger, K. Q., & van der Maaten, L. (2019). *SimpleShot: Revisiting Nearest-Neighbor Classification for Few-Shot Learning.* arXiv:1911.04623.
-- **Cross-domain few-shot baseline:** Chen, W. Y., Liu, Y. C., Kira, Z., Wang, Y. C. F., & Huang, J. B. (2019). *A Closer Look at Few-shot Classification.* ICLR.
+- **PlantVillage:** Hughes, D. P., & Salathé, M. (2015). _An open access repository of images on plant health to enable the development of mobile disease diagnostics._ arXiv:1511.08060.
+- **PlantDoc:** Singh, D., Jain, N., Jain, P., Kayal, P., Kumawat, S., & Batra, N. (2020). _PlantDoc: A Dataset for Visual Plant Disease Detection._ CoDS-COMAD.
+- **ResNet:** He, K., Zhang, X., Ren, S., & Sun, J. (2016). _Deep Residual Learning for Image Recognition._ CVPR.
+- **Swin Transformer:** Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S., & Guo, B. (2021). _Swin Transformer: Hierarchical Vision Transformer using Shifted Windows._ ICCV.
+- **Prototypical Networks:** Snell, J., Swersky, K., & Zemel, R. (2017). _Prototypical Networks for Few-shot Learning._ NeurIPS.
+- **SimpleShot:** Wang, Y., Chao, W. L., Weinberger, K. Q., & van der Maaten, L. (2019). _SimpleShot: Revisiting Nearest-Neighbor Classification for Few-Shot Learning._ arXiv:1911.04623.
+- **Cross-domain few-shot baseline:** Chen, W. Y., Liu, Y. C., Kira, Z., Wang, Y. C. F., & Huang, J. B. (2019). _A Closer Look at Few-shot Classification._ ICLR.
 
 ---
 
@@ -288,7 +300,7 @@ After each notebook completes successfully:
 - PlantDoc is a small dataset (378 maize images across 3 classes). The 95% CIs on few-shot results are tight, but absolute conclusions about cross-domain performance would be more robust with a larger field benchmark.
 - PlantDoc's lack of a Corn Healthy class restricts the cross-dataset evaluation to 3 classes. The 4-class story is incomplete on the field side.
 - All experiments use a single random seed for splits and training; full reporting would include multiple seeds and report variability.
-- The few-shot adaptation tested here uses *only* prototype averaging on frozen features. More aggressive baselines (head fine-tuning, LoRA adapters, full fine-tuning on the support set) would likely yield substantially better cross-domain results.
+- The few-shot adaptation tested here uses _only_ prototype averaging on frozen features. More aggressive baselines (head fine-tuning, LoRA adapters, full fine-tuning on the support set) would likely yield substantially better cross-domain results.
 
 **Promising directions:**
 
